@@ -24,7 +24,7 @@ def draw(screen):
     #
     # ---------------- TODO ----------------
 
-    display = ...
+    display = text[:cursor] + '|' + text[cursor:]
 
     # ----------------------------------------
 
@@ -71,10 +71,10 @@ def main(screen):
         # ---------------- ANSWER ----------------
 
         elif key == curses.KEY_LEFT:
+            if cursor > 0:
+                cursor -= 1
 
-            ...
-
-            display = ...
+            display = text[0:cursor] + '|' + text[cursor:]
 
         # ----------------------------------------
 
@@ -98,10 +98,10 @@ def main(screen):
         # ---------------- ANSWER ----------------
 
         elif key == curses.KEY_RIGHT:
+            if cursor < len(text):
+                cursor += 1
 
-            ...
-
-            display = ...
+            display = text[0:cursor] + '|' + text[cursor:]
 
         # ----------------------------------------
 
@@ -125,10 +125,11 @@ def main(screen):
         # ---------------- ANSWER ----------------
 
         elif key in (8, 127, curses.KEY_BACKSPACE):
+            if cursor > 0:
+                text = text[0:cursor - 1] + text[cursor:]
+                cursor -= 1
 
-            ...
-
-            display = ...
+            display = text[0:cursor] + '|' + text[cursor:]
 
         # ----------------------------------------
 
@@ -153,9 +154,10 @@ def main(screen):
 
         elif key == 10:
 
-            ...
+            text = text[0:cursor] + "\n" + text[cursor:]
+            cursor += 1
 
-            display = ...
+            display = text[0:cursor] + '|' + text[cursor:]
 
         # ----------------------------------------
 
@@ -182,9 +184,11 @@ def main(screen):
 
         elif 32 <= key <= 126:
 
-            ...
+            char = chr(key)
+            text = text[0:cursor] + char + text[cursor:]
+            cursor += 1
 
-            display = ...
+            display = text[0:cursor] + '|' + text[cursor:]
 
         # ----------------------------------------
 
@@ -192,14 +196,54 @@ def main(screen):
 
         elif key == curses.KEY_UP:
 
-            ...
+            display = text[0:cursor] + '|' + text[cursor:]
+            lines = display.split("\n")
 
-            display = ...
+            # Get the row and col of the cursor
+            for i, line in enumerate(lines):
+                for j, char in enumerate(line):
+                    if char == '|':
+                        row = i
+                        col = j
+
+            if row > 0:
+                new_row = row - 1
+                new_col = min(col, len(lines[new_row]))
+
+                # Reset the cursor and put it to the new position
+                cursor = 0
+                for line in lines[:new_row]:
+                    cursor += len(line) + 1
+
+                cursor += new_col
+
+            display = text[:cursor] + "|" + text[cursor:]
 
         elif key == curses.KEY_DOWN:
 
-            ...
+            display = text[0:cursor] + '|' + text[cursor:]
+            lines = display.split("\n")
 
-            display = ...
+            # Get the row and col of the cursor
+            for i, line in enumerate(lines):
+                for j, char in enumerate(line):
+                    if char == '|':
+                        row = i
+                        col = j
+
+            if row < len(lines) - 1:
+                new_row = row + 1
+                new_col = min(col, len(lines[new_row]))
+
+                # Reset the cursor and put it to the new position
+                cursor = 0
+                for line in lines[:new_row]:
+                    cursor += len(line) + 1
+
+                cursor += new_col
+                cursor -= 1
+
+            display = text[:cursor] + "|" + text[cursor:]
+
 
 curses.wrapper(main)
